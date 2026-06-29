@@ -1,3 +1,4 @@
+// src/modules/tokenizer/TokenizerModule.jsx
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { mockTokenDatabase, generateFallbackTokens } from "./mockData";
@@ -11,8 +12,10 @@ export default function TokenizerModule() {
   const [stats, setStats] = useState({ chars: 0, tokens: 0, avgSize: 0 });
 
   useEffect(() => {
-    const cleaned = inputText.trim().toLowerCase();
-    const tokenData = mockTokenDatabase[cleaned] || generateFallbackTokens(inputText);
+    // FIX: Remove all spaces completely before looking up or generating tokens
+    const spacelessText = inputText.toLowerCase().replace(/\s+/g, "");
+    
+    const tokenData = mockTokenDatabase[spacelessText] || generateFallbackTokens(spacelessText);
     setTokens(tokenData);
     
     const totalChars = inputText.length;
@@ -39,7 +42,7 @@ export default function TokenizerModule() {
                 <span className="text-sm font-normal text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full">Module 1</span>
               </h1>
               <p className="text-slate-300 mt-3 leading-relaxed max-w-3xl">
-                LLMs don't understand raw text directly—they split it into smaller units called <strong className="text-indigo-400">tokens</strong> and convert them into numerical IDs.
+                This environment simulates token parsing with <strong className="text-indigo-400">whitespace filtering</strong>. All spaces are discarded, breaking raw characters directly into vocabulary units.
               </p>
             </div>
           </div>
@@ -63,7 +66,7 @@ export default function TokenizerModule() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 className="w-full h-40 resize-none bg-slate-900/50 border border-slate-700/50 rounded-xl p-4 text-white text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder:text-slate-500"
-                placeholder="Type a sentence to see how it gets tokenized..."
+                placeholder="Type a sentence..."
               />
               <div className="flex flex-wrap gap-2 mt-4">
                 <button onClick={() => handleExampleClick("learning generative ai is fascinating")} className="px-3 py-1.5 rounded-lg text-xs bg-slate-800/50 text-slate-300 border border-slate-700/50 hover:bg-slate-700/50 hover:border-slate-600 transition-all hover:scale-105">✨ Example 1</button>
@@ -94,7 +97,7 @@ export default function TokenizerModule() {
                         onMouseLeave={() => setHoveredTokenIndex(null)}
                         className={`px-3 py-2 rounded-lg border font-mono text-sm font-semibold cursor-pointer transition-colors ${token.color} ${hoveredTokenIndex === index ? "ring-2 ring-white/30 shadow-xl z-10 scale-110" : "hover:scale-105"}`}
                       >
-                        {token.text === " " ? "␣" : token.text}
+                        {token.text}
                         {hoveredTokenIndex === index && <span className="ml-2 text-[10px] opacity-60">#{token.id}</span>}
                       </motion.span>
                     )) : <span className="text-slate-500 text-sm">No tokens to display</span>}
@@ -106,7 +109,6 @@ export default function TokenizerModule() {
               <div>
                 <h3 className="text-slate-200 font-semibold mb-3 flex items-center gap-2">
                   <Hash className="w-4 h-4 text-cyan-400" /> Token IDs
-                  <span className="text-xs font-normal text-slate-500 ml-2">(sent to model)</span>
                 </h3>
                 <div className="bg-slate-900/50 border border-slate-800/50 rounded-xl p-5 font-mono flex flex-wrap items-center gap-1 min-h-[60px]">
                   <span className="text-indigo-400 font-bold">[</span>
@@ -130,54 +132,32 @@ export default function TokenizerModule() {
             </div>
           </div>
 
-          {/* RIGHT SIDE (Restored) */}
+          {/* RIGHT SIDE */}
           <div className="space-y-6">
-            <div className="bg-slate-950/50 backdrop-blur-sm border border-slate-800/50 rounded-2xl p-6 hover:border-slate-700/50 transition-colors h-full flex flex-col">
+            <div className="bg-slate-950/50 backdrop-blur-sm border border-slate-800/50 rounded-2xl p-6 h-full flex flex-col">
               <div className="flex items-center gap-2 mb-4">
                 <HelpCircle className="w-5 h-5 text-cyan-400" />
-                <h3 className="text-white font-semibold">How Tokenization Works</h3>
+                <h3 className="text-white font-semibold">Space-Free Mode</h3>
               </div>
 
               <div className="space-y-4 flex-1">
                 <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-red-400 text-sm font-bold">✕</span>
+                  </div>
+                  <p className="text-sm text-slate-300">Whitespace characters are fully stripped from your input payload before division processes execute.</p>
+                </div>
+                <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50 flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-purple-400 text-sm font-bold">↗</span>
+                    <span className="text-purple-400 text-sm font-bold">📦</span>
                   </div>
-                  <p className="text-sm text-slate-300">Words can split into <strong className="text-purple-400">sub-tokens</strong> for better handling of new words.</p>
-                </div>
-                <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50 flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-green-400 text-sm font-bold">∞</span>
-                  </div>
-                  <p className="text-sm text-slate-300">This allows models to handle <strong className="text-green-400">unknown words</strong> by breaking them down.</p>
-                </div>
-                <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50 flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-blue-400 text-sm font-bold">#</span>
-                  </div>
-                  <p className="text-sm text-slate-300">Every token gets a <strong className="text-blue-400">unique numerical ID</strong> for the model to process.</p>
-                </div>
-              </div>
-
-              <div className="mt-6 bg-gradient-to-br from-indigo-950/30 to-cyan-950/30 border border-indigo-900/50 rounded-xl p-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-slate-400 uppercase tracking-wider">Total Tokens</p>
-                    <p className="text-2xl font-bold text-indigo-400 mt-1">{stats.tokens}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400 uppercase tracking-wider">Avg Token Size</p>
-                    <p className="text-2xl font-bold text-cyan-400 mt-1">
-                      {stats.avgSize > 0 ? stats.avgSize.toFixed(1) : '0'} 
-                      <span className="text-sm font-normal text-slate-400 ml-1">chars</span>
-                    </p>
-                  </div>
+                  <p className="text-sm text-slate-300">Characters are packed tight. Words connect seamlessly into single alphanumeric sequence strings.</p>
                 </div>
               </div>
 
               <div className="mt-4 bg-amber-950/20 border border-amber-900/30 rounded-xl p-3 flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-300/80"><strong className="text-amber-200">Tip:</strong> Hover over tokens to see their IDs and highlight relationships.</p>
+                <p className="text-xs text-amber-300/80">Great for evaluating raw character groupings and custom dictionary allocations.</p>
               </div>
             </div>
           </div>

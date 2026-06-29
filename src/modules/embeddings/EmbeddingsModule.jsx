@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { wordClusters, presetComparisons } from "./mockEmbeddingsData";
-import { HelpCircle, Database } from "lucide-react";
+import { HelpCircle, Database, Layers, Info } from "lucide-react";
 
 export default function EmbeddingsModule() {
   const [selectedPair, setSelectedPair] = useState(presetComparisons[0]);
@@ -14,7 +14,7 @@ export default function EmbeddingsModule() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 px-4 py-8">
+    <div className="max-w-6xl mx-auto space-y-8 px-4 py-8 text-white">
       <div>
         <h1 className="text-3xl font-bold text-white flex items-center gap-3">
           <Database className="text-indigo-400" />
@@ -106,21 +106,45 @@ export default function EmbeddingsModule() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN (Restored) */}
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 flex flex-col justify-between">
+        {/* RIGHT COLUMN (Updated to precisely reflect correct token-space mechanics) */}
+        <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 flex flex-col justify-between space-y-6">
           <div>
-            <h3 className="text-white flex items-center gap-2 font-semibold">
-              <HelpCircle className="text-cyan-400" /> Concept
+            <h3 className="text-white flex items-center gap-2 font-semibold border-b border-slate-800 pb-3">
+              <HelpCircle className="text-cyan-400" /> Token Space Concept
             </h3>
-            <ul className="mt-5 space-y-3 text-sm text-slate-400 list-disc list-inside">
-              <li>Real embeddings contain thousands of dimensions.</li>
-              <li>Similar meanings create nearby vectors.</li>
-              <li>LLMs compare vector relationships mathematically.</li>
+            <ul className="mt-4 space-y-3 text-sm text-slate-400 list-disc list-inside leading-relaxed">
+              <li>Real embeddings map text into thousands of dense mathematical dimensions.</li>
+              <li>Semantic clusters form because structurally matching ideas create nearby vector points.</li>
+              <li>
+                <strong className="text-slate-200">The Space Rule:</strong> Embedding spaces do not track independent blank strings. Spaces are absorbed directly inside pre-compiled word sequences during Tokenization.
+              </li>
             </ul>
           </div>
-          <div className="mt-6 p-4 rounded-lg bg-cyan-950/30 border border-cyan-900 text-sm text-cyan-300">
-            <strong className="text-white">Math Insight:</strong>
-            <p className="mt-2">Cosine similarity measures angle distance between vectors.</p>
+
+          {/* New Educational Insight Block clarifying Token Casing and Structure */}
+          <div className="p-4 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2">
+            <div className="flex items-center gap-2 font-semibold text-amber-400">
+              <Layers className="w-4 h-4" />
+              <span>Tokenization Prep Execution</span>
+            </div>
+            <p className="leading-relaxed">
+              Before calculating weights, sentences are encoded via structures like BPE. Spaces morph directly into structural characters:
+            </p>
+            <div className="bg-black/40 p-2 rounded border border-slate-800 font-mono text-[11px] text-slate-400 space-y-1">
+              <div>"hello world" <span className="text-slate-600">→</span> <span className="text-emerald-400">["hello", "Ġworld"]</span></div>
+            </div>
+            <p className="text-slate-500 text-[10px] leading-tight">
+              The embedding step receives unified indices, ensuring context remains stable instead of skewing due to punctuation space characters.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg bg-cyan-950/30 border border-cyan-900 text-sm text-cyan-300">
+            <strong className="text-white flex items-center gap-1.5 mb-1">
+              <Info className="w-4 h-4 text-cyan-400" /> Math Insight:
+            </strong>
+            <p className="text-xs mt-2 leading-relaxed">
+              Cosine similarity measures the geometric angle distance between arrays. Independent space tracking would pollute directional vectors, reducing semantic lookup precision.
+            </p>
           </div>
         </div>
       </div>
