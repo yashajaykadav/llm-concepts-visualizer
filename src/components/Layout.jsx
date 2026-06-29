@@ -4,7 +4,8 @@ import Sidebar from './Sidebar';
 import TokenizerModule from '../modules/tokenizer/TokenizerModule';
 import EmbeddingsModule from '../modules/embeddings/EmbeddingsModule';
 import AttentionModule from '../modules/attention/AttentionModule';
-import RagModule from '../modules/rag/RagModule';
+// FIX: Capitalized RAG/Rag directory and file tracking to match file structure
+import RagModule from '../modules/rag/RagModule'; 
 
 export default function Layout() {
   const [activeModule, setActiveModule] = useState('tokenizer');

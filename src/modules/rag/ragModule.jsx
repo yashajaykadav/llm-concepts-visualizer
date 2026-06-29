@@ -181,7 +181,7 @@ export default function RagModule() {
                   if (isSearching) {
                     stateClasses = isTarget ? "bg-emerald-900/20 border-emerald-500/30 text-emerald-200" : "bg-slate-900/30 border-slate-800/30 text-slate-600 opacity-50";
                   } else if (isRetrieved && isTarget) {
-                    stateClasses = "bg-slate-900/30 border-emerald-500/10 text-slate-600 opacity-20"; // Dimmed after extraction
+                    stateClasses = "bg-slate-900/30 border-emerald-500/10 text-slate-600 opacity-20"; 
                   }
 
                   return (
@@ -200,7 +200,6 @@ export default function RagModule() {
                       </div>
                       <p className="text-sm">{chunk.text}</p>
                       
-                      {/* Search scan line animation */}
                       {isSearching && isTarget && (
                         <motion.div 
                           initial={{ left: 0, opacity: 0 }}
