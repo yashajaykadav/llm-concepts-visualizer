@@ -5,6 +5,7 @@ import TokenizerModule from '../modules/tokenizer/TokenizerModule';
 import EmbeddingsModule from '../modules/embeddings/EmbeddingsModule';
 import AttentionModule from '../modules/attention/AttentionModule';
 import RagModule from '../modules/rag/ragModule'
+import AgentModule from '../modules/agent/AgentModule';
 
 export default function Layout() {
   const [activeModule, setActiveModule] = useState('tokenizer');
@@ -15,6 +16,7 @@ export default function Layout() {
     { id: 'embeddings', name: 'Vector Embeddings', icon: Database },
     { id: 'attention', name: 'Attention Mechanism', icon: Cpu },
     { id: 'rag', name: 'RAG Pipeline', icon: Search },
+    { id: 'agent', name: 'AI Agents Loop', icon: Cpu },
   ];
 
   return (
@@ -41,6 +43,7 @@ export default function Layout() {
             {activeModule === 'embeddings' && <EmbeddingsModule />}
             {activeModule === 'attention' && <AttentionModule />}
             {activeModule === 'rag' && <RagModule />}
+            {activeModule === 'agent' && <AgentModule />}
           </div>
         </div>
       </main>
