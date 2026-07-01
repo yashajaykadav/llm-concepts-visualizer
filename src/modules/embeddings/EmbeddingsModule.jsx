@@ -1,11 +1,22 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import {
+  Database,
+  HelpCircle,
+  Layers,
+  Info,
+  Search,
+  Sparkles,
+} from "lucide-react";
+
 import { wordClusters, presetComparisons } from "./mockEmbeddingsData";
-import { HelpCircle, Database, Layers, Info } from "lucide-react";
 
 export default function EmbeddingsModule() {
   const [selectedPair, setSelectedPair] = useState(presetComparisons[0]);
   const [highlightedCluster, setHighlightedCluster] = useState(null);
+  const [selectedWord, setSelectedWord] = useState(null);
+
+  const cardStyle = "bg-slate-950 border border-slate-800 rounded-xl p-6";
 
   const clusterColors = {
     Royalty: "bg-pink-500/10 text-pink-400 border-pink-500/30",
@@ -13,23 +24,73 @@ export default function EmbeddingsModule() {
     Nature: "bg-green-500/10 text-green-400 border-green-500/30",
   };
 
+  const vectorExample = [
+    "0.2341",
+    "-0.532",
+    "0.891",
+    "0.121",
+    "...",
+    "1536 dimensions",
+  ];
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8 px-4 py-8 text-white">
+    <div className="max-w-7xl mx-auto px-4 py-8 text-white space-y-8">
+      {/* HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+        <h1 className="text-3xl font-bold flex items-center gap-3">
           <Database className="text-indigo-400" />
           Module 2: Vector Embeddings
         </h1>
         <p className="text-slate-400 mt-3">
-          Embeddings convert tokens into vectors. Similar concepts stay closer in vector space.
+          Embeddings convert tokens into mathematical vectors where similar
+          meanings stay close together.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* PIPELINE */}
+      <div className={cardStyle}>
+        <h2 className="font-semibold text-slate-300 mb-5">
+          Embedding Pipeline
+        </h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-center">
+          {[
+            "Text",
+            "Tokenizer",
+            "Token IDs",
+            "Embedding Model",
+            "Vector",
+            "Vector DB",
+          ].map((item, index) => (
+            <motion.div
+              key={item}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-slate-900 border border-slate-800 rounded-lg p-4"
+            >
+              <div className="text-indigo-400 font-bold">{index + 1}</div>
+              <p className="text-sm mt-2 text-slate-300">{item}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* LEFT AREA */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-6">
-            <h3 className="text-slate-300 font-semibold mb-4">2D Vector Space Map</h3>
-            <div className="relative h-[380px] bg-slate-900 rounded-lg border border-slate-800 overflow-hidden">
+          {/* VECTOR MAP */}
+          <div className={cardStyle}>
+            <h3 className="font-semibold text-slate-300 mb-4">
+              2D Projection of High Dimensional Vector Space
+            </h3>
+
+            <p className="text-xs text-slate-500 mb-4">
+              Real embeddings contain hundreds/thousands of dimensions. This
+              visualization is a simplified 2D projection.
+            </p>
+
+            <div className="relative h-[380px] bg-slate-900 rounded-lg overflow-hidden border border-slate-800">
               <div className="absolute inset-0 grid grid-cols-10 grid-rows-10 opacity-10">
                 {Array.from({ length: 100 }).map((_, i) => (
                   <div key={i} className="border border-slate-700" />
@@ -39,32 +100,40 @@ export default function EmbeddingsModule() {
               {Object.entries(wordClusters).map(([cluster, points]) =>
                 points.map((pt, index) => {
                   const isDimmed = highlightedCluster && highlightedCluster !== cluster;
+
                   return (
-                    <motion.div
+                    <motion.button
                       key={`${cluster}-${index}`}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ 
-                        opacity: isDimmed ? 0.2 : 1, 
-                        scale: isDimmed ? 0.8 : 1, 
-                        left: `${pt.x * 10}%`, 
-                        bottom: `${pt.y * 10}%` 
+                      onClick={() => setSelectedWord(pt.word)}
+                      animate={{
+                        left: `${pt.x * 10}%`,
+                        bottom: `${pt.y * 10}%`,
+                        opacity: isDimmed ? 0.2 : 1,
+                        scale: isDimmed ? 0.8 : 1,
                       }}
-                      transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                      className={`absolute -translate-x-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg text-xs font-mono border whitespace-nowrap ${clusterColors[cluster]} ${!isDimmed && "shadow-lg"}`}
+                      className={`absolute -translate-x-1/2 
+                      -translate-y-1/2 px-3 py-2 rounded-lg
+                      border text-xs font-mono
+                      ${clusterColors[cluster]}`}
                     >
                       ● {pt.word}
-                    </motion.div>
+                    </motion.button>
                   );
                 }),
               )}
             </div>
 
-            <div className="flex flex-wrap gap-3 mt-5">
+            <div className="flex gap-3 mt-5 flex-wrap">
               {Object.keys(wordClusters).map((cluster) => (
                 <button
                   key={cluster}
-                  onClick={() => setHighlightedCluster(highlightedCluster === cluster ? null : cluster)}
-                  className={`px-3 py-1 rounded-md text-xs border transition-all ${clusterColors[cluster]} ${highlightedCluster === cluster ? 'ring-2 ring-white/30 scale-105' : ''}`}
+                  onClick={() =>
+                    setHighlightedCluster(
+                      highlightedCluster === cluster ? null : cluster,
+                    )
+                  }
+                  className={`px-3 py-1 rounded border text-xs
+                  ${clusterColors[cluster]}`}
                 >
                   {cluster}
                 </button>
@@ -72,33 +141,62 @@ export default function EmbeddingsModule() {
             </div>
           </div>
 
-          <div className="bg-slate-950 border border-slate-800 rounded-xl p-6">
-            <h3 className="text-slate-300 font-semibold mb-4">Semantic Similarity Experiment</h3>
+          {/* VECTOR PREVIEW */}
+          {selectedWord && (
+            <div className={cardStyle}>
+              <h3 className="flex items-center gap-2">
+                <Sparkles className="text-yellow-400" />
+                Vector Representation
+              </h3>
+
+              <div className="mt-4 bg-black/40 p-4 rounded-lg font-mono text-xs">
+                <p>
+                  Word:
+                  <span className="text-cyan-400"> {selectedWord}</span>
+                </p>
+
+                <p className="mt-3 text-slate-400">Embedding Vector:</p>
+
+                <p className="text-green-400">[{vectorExample.join(", ")}]</p>
+              </div>
+            </div>
+          )}
+
+          {/* SIMILARITY */}
+          <div className={cardStyle}>
+            <h3 className="font-semibold mb-4">Semantic Similarity</h3>
+
             <div className="grid md:grid-cols-2 gap-5">
               <div className="space-y-2">
                 {presetComparisons.map((item, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedPair(item)}
-                    className={`w-full text-left p-3 rounded-lg border transition-all ${selectedPair.pair === item.pair ? "bg-indigo-600/20 border-indigo-400 text-white" : "bg-slate-900 border-slate-800 text-slate-400"}`}
+                    className="w-full p-3 rounded-lg bg-slate-900
+                    border border-slate-800 text-left"
                   >
                     {item.pair}
                   </button>
                 ))}
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-lg p-5">
-                <span className="text-xs text-slate-500">Similarity Score</span>
-                <div className="text-4xl font-bold text-indigo-400 mt-2">
+              <div className="bg-slate-900 p-5 rounded-lg">
+                <p className="text-slate-400 text-sm">Cosine Similarity</p>
+
+                <div className="text-4xl text-indigo-400 font-bold">
                   {selectedPair.similarity}%
                 </div>
-                <p className="text-sm text-slate-400 mt-3">{selectedPair.desc}</p>
-                <div className="h-3 bg-slate-800 rounded-full mt-5 overflow-hidden">
+
+                <p className="text-sm text-slate-400 mt-3">
+                  {selectedPair.desc}
+                </p>
+
+                <div className="mt-4 h-3 bg-slate-800 rounded">
                   <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${selectedPair.similarity}%` }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all"
+                    animate={{
+                      width: `${selectedPair.similarity}%`,
+                    }}
+                    className="h-full bg-indigo-500 rounded"
                   />
                 </div>
               </div>
@@ -106,44 +204,51 @@ export default function EmbeddingsModule() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN (Updated to precisely reflect correct token-space mechanics) */}
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 flex flex-col justify-between space-y-6">
-          <div>
-            <h3 className="text-white flex items-center gap-2 font-semibold border-b border-slate-800 pb-3">
-              <HelpCircle className="text-cyan-400" /> Token Space Concept
-            </h3>
-            <ul className="mt-4 space-y-3 text-sm text-slate-400 list-disc list-inside leading-relaxed">
-              <li>Real embeddings map text into thousands of dense mathematical dimensions.</li>
-              <li>Semantic clusters form because structurally matching ideas create nearby vector points.</li>
-              <li>
-                <strong className="text-slate-200">The Space Rule:</strong> Embedding spaces do not track independent blank strings. Spaces are absorbed directly inside pre-compiled word sequences during Tokenization.
-              </li>
-            </ul>
-          </div>
+        {/* RIGHT SIDE */}
+        <div className={`${cardStyle} space-y-6`}>
+          <h3 className="flex gap-2 items-center">
+            <HelpCircle className="text-cyan-400" />
+            Concept
+          </h3>
 
-          {/* New Educational Insight Block clarifying Token Casing and Structure */}
-          <div className="p-4 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2">
-            <div className="flex items-center gap-2 font-semibold text-amber-400">
-              <Layers className="w-4 h-4" />
-              <span>Tokenization Prep Execution</span>
+          <ul className="text-sm text-slate-400 space-y-3">
+            <li>Text is converted into numbers that represent meaning.</li>
+            <li>Similar meanings create nearby vectors.</li>
+            <li>
+              Vector databases search these numbers instead of exact words.
+            </li>
+          </ul>
+
+          <div className="bg-slate-900 p-4 rounded-lg">
+            <div className="flex gap-2 items-center text-yellow-400">
+              <Layers size={16} />
+              RAG Example
             </div>
-            <p className="leading-relaxed">
-              Before calculating weights, sentences are encoded via structures like BPE. Spaces morph directly into structural characters:
-            </p>
-            <div className="bg-black/40 p-2 rounded border border-slate-800 font-mono text-[11px] text-slate-400 space-y-1">
-              <div>"hello world" <span className="text-slate-600">→</span> <span className="text-emerald-400">["hello", "Ġworld"]</span></div>
-            </div>
-            <p className="text-slate-500 text-[10px] leading-tight">
-              The embedding step receives unified indices, ensuring context remains stable instead of skewing due to punctuation space characters.
+
+            <p className="text-xs mt-3 text-slate-400">
+              PDF → Chunk → Embedding → Vector DB → Retrieve → LLM Answer
             </p>
           </div>
 
-          <div className="p-4 rounded-lg bg-cyan-950/30 border border-cyan-900 text-sm text-cyan-300">
-            <strong className="text-white flex items-center gap-1.5 mb-1">
-              <Info className="w-4 h-4 text-cyan-400" /> Math Insight:
-            </strong>
-            <p className="text-xs mt-2 leading-relaxed">
-              Cosine similarity measures the geometric angle distance between arrays. Independent space tracking would pollute directional vectors, reducing semantic lookup precision.
+          <div className="bg-cyan-950/30 border border-cyan-900 p-4 rounded-lg">
+            <div className="flex gap-2 items-center">
+              <Search size={16} />
+              Vector Search
+            </div>
+
+            <p className="text-xs text-cyan-300 mt-3">
+              Query vector compares distance with stored vectors and returns the
+              closest meaning.
+            </p>
+          </div>
+
+          <div className="bg-indigo-950/30 p-4 rounded-lg">
+            <div className="flex gap-2 items-center">
+              <Info size={16} />
+            </div>
+            <p className="text-xs text-slate-300 mt-2">
+              Cosine similarity measures angle between vectors. Smaller angle =
+              more similar meaning.
             </p>
           </div>
         </div>
